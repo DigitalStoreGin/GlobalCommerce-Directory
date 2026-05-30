@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B5FFF">
+<meta name="description" content="GlobalCommerce Intelligence — Cơ sở dữ liệu phân tích 1,060+ sàn thương mại điện tử trên 6 châu lục, 90+ quốc gia. Traffic, phí, loại hình, xu hướng.">
+<meta name="robots" content="index, follow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta property="og:title" content="GlobalCommerce Intelligence — E-Commerce Platform Database">
+<meta property="og:description" content="Phân tích 1,060+ sàn TMĐT toàn cầu. Filter theo traffic, phí, loại hình. Xuất CSV. Dashboard chuyên nghiệp như Semrush.">
+<meta property="og:type" content="website">
+
+<title>GlobalCommerce Intelligence · E-Commerce Platform Database</title>
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230B5FFF'/%3E%3Cstop offset='1' stop-color='%2300C2A8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-family='Inter,system-ui,sans-serif' font-size='62' font-weight='800' fill='white' text-anchor='middle'%3EG%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="main.css">
+
+<!-- Theme bootstrap (avoid FOUC) -->
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('gc-theme');
+    if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+    else if (t === 'light') document.documentElement.setAttribute('data-theme','light');
+    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme','dark');
+    }
+  } catch(e) {}
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MOBILE OVERLAY (closes sidebar on mobile)                     -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="app-overlay" id="appOverlay" aria-hidden="true"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- APP SHELL                                                       -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="app">
+
+  <!-- ─────────────────────────────────────────── SIDEBAR ─────── -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-head">
+      <a class="brand" href="#" data-route="overview">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="22" height="22">
+            <defs>
+              <linearGradient id="lg1" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="#0B5FFF"/>
+                <stop offset="1" stop-color="#00C2A8"/>
+              </linearGradient>
+            </defs>
+            <rect width="32" height="32" rx="8" fill="url(#lg1)"/>
+            <path d="M9 11h14M9 16h14M9 21h10" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <strong>GlobalCommerce</strong>
+          <em>Intelligence</em>
+        </span>
+      </a>
+      <button class="sidebar-close" id="sidebarClose" aria-label="Đóng menu">✕</button>
+    </div>
+
+    <nav class="side-nav" aria-label="Sections">
+      <div class="side-group">
+        <p class="side-label">Dashboard</p>
+        <a class="side-link active" href="#" data-route="overview">
+          <span class="ico">⌂</span><span>Tổng quan</span>
+        </a>
+        <a class="side-link" href="#" data-route="analytics">
+          <span class="ico">◔</span><span>Phân tích</span>
+        </a>
+      </div>
+
+      <div class="side-group">
+        <p class="side-label">Khám phá</p>
+        <a class="side-link" href="#" data-route="directory">
+          <span class="ico">⌕</span><span>Danh mục</span>
+          <span class="side-badge" id="navDirCount">0</span>
+        </a>
+        <a class="side-link" href="#" data-route="continents">
+          <span class="ico">◌</span><span>Châu lục</span>
+          <span class="side-badge">6</span>
+        </a>
+        <a class="side-link" href="#" data-route="digital">
+          <span class="ico">◇</span><span>Sản phẩm số</span>
+        </a>
+      </div>
+
+      <div class="side-group">
+        <p class="side-label">Cá nhân</p>
+        <a class="side-link" href="#" data-route="favorites" id="navFavorites">
+          <span class="ico">★</span><span>Yêu thích</span>
+          <span class="side-badge" id="navFavCount">0</span>
+        </a>
+      </div>
+
+      <div class="side-group">
+        <p class="side-label">Công cụ</p>
+        <a class="side-link" href="#" id="navExportCsv">
+          <span class="ico">↓</span><span>Xuất CSV</span>
+        </a>
+        <a class="side-link" href="https://github.com" target="_blank" rel="noopener">
+          <span class="ico">⎘</span><span>GitHub Repo</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="sf-card">
+        <p class="sf-title">📊 Database snapshot</p>
+        <div class="sf-stat"><span>Platforms</span><strong id="sfPlatforms">—</strong></div>
+        <div class="sf-stat"><span>Countries</span><strong id="sfCountries">—</strong></div>
+        <div class="sf-stat"><span>Updated</span><strong>Q2 · 2026</strong></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─────────────────────────────────────────── MAIN ────────── -->
+  <div class="main-area">
+
+    <!-- ───── TOPBAR ───── -->
+    <header class="topbar">
+      <button class="icon-btn topbar-menu" id="menuBtn" aria-label="Mở menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+
+      <div class="topbar-search" id="topSearchWrap">
+        <svg class="ts-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="text" id="globalSearch" placeholder="Tìm sàn TMĐT, quốc gia, loại hình..." autocomplete="off" aria-label="Tìm kiếm toàn cục">
+        <kbd class="kbd-hint">/</kbd>
+        <div class="search-suggest" id="searchSuggest" hidden></div>
+      </div>
+
+      <div class="topbar-actions">
+        <!-- Auth button -->
+        <div class="auth-widget" id="authWidget">
+          <button class="btn btn-primary btn-sm auth-login-btn" id="authLoginBtn" aria-label="Đăng nhập">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Đăng nhập
+          </button>
+          <div class="auth-user-pill" id="authUserPill" hidden>
+            <div class="aup-avatar" id="authAvatar">A</div>
+            <div class="aup-info">
+              <span class="aup-name" id="authDisplayName">User</span>
+              <span class="aup-role">Thành viên</span>
+            </div>
+            <button class="aup-menu-btn" id="authMenuBtn" aria-label="Menu tài khoản" aria-expanded="false">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <!-- User dropdown menu -->
+          <div class="auth-dropdown" id="authDropdown" hidden>
+            <div class="auth-dd-user">
+              <div class="auth-dd-avatar" id="authDdAvatar">A</div>
+              <div>
+                <div class="auth-dd-name" id="authDdName">User</div>
+                <div class="auth-dd-sub">Tài khoản cá nhân</div>
+              </div>
+            </div>
+            <div class="auth-dd-divider"></div>
+            <button class="auth-dd-item" data-route="favorites" id="authDdFavBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 0 0 .95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 0 0-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 0 0-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 0 0-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 0 0 .951-.69l1.519-4.674z"/></svg>
+              <span>Yêu thích của tôi</span>
+              <span class="auth-dd-badge" id="authDdFavCount">0</span>
+            </button>
+            <div class="auth-dd-divider"></div>
+            <button class="auth-dd-item auth-dd-logout" id="authLogoutBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+              <span>Đăng xuất</span>
+            </button>
+          </div>
+        </div>
+
+        <button class="icon-btn" id="themeToggle" aria-label="Bật chế độ tối">
+          <svg class="ic-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg class="ic-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="content" id="mainContent">
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- VIEW: OVERVIEW                              -->
+      <!-- ════════════════════════════════════════════ -->
+      <section class="view active" id="view-overview" data-view="overview">
+
+        <div class="page-head">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="#">Home</a><span>›</span><strong>Tổng quan</strong>
+          </nav>
+          <div class="ph-row">
+            <div>
+              <h1 class="ph-title">Commerce Intelligence Dashboard</h1>
+              <p class="ph-sub">Cơ sở dữ liệu phân tích <strong id="phPlatforms">1,060+</strong> sàn thương mại điện tử trên <strong>6 châu lục</strong> và <strong>90+ quốc gia</strong>. Cập nhật Q2 / 2026.</p>
+            </div>
+            <div class="ph-actions">
+              <button class="btn btn-ghost" data-action="export-csv">
+                <span class="bi">↓</span> Xuất CSV
+              </button>
+              <button class="btn btn-primary" data-route="directory">
+                Khám phá danh mục <span class="bi">→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="kpi-grid">
+          <article class="kpi" data-tone="primary">
+            <header class="kpi-h">
+              <span class="kpi-label">Tổng sàn TMĐT</span>
+              <span class="kpi-tag">↗ +12%</span>
+            </header>
+            <strong class="kpi-value" id="kpiPlatforms">0</strong>
+            <p class="kpi-sub">Sàn được lập chỉ mục toàn cầu</p>
+            <div class="kpi-spark" data-spark="6,8,7,11,14,12,17,19,18,22,24"></div>
+          </article>
+
+          <article class="kpi" data-tone="success">
+            <header class="kpi-h">
+              <span class="kpi-label">Quốc gia phủ sóng</span>
+              <span class="kpi-tag">▼ Global</span>
+            </header>
+            <strong class="kpi-value" id="kpiCountries">0</strong>
+            <p class="kpi-sub">Quốc gia & vùng lãnh thổ</p>
+            <div class="kpi-spark" data-spark="3,5,7,8,10,12,14,15,17,18,19"></div>
+          </article>
+
+          <article class="kpi" data-tone="warning">
+            <header class="kpi-h">
+              <span class="kpi-label">Tổng traffic ước tính</span>
+              <span class="kpi-tag">/tháng</span>
+            </header>
+            <strong class="kpi-value" id="kpiTraffic">0</strong>
+            <p class="kpi-sub">Lượt visit hàng tháng cộng dồn</p>
+            <div class="kpi-spark" data-spark="9,8,10,12,11,14,16,18,17,19,21"></div>
+          </article>
+
+          <article class="kpi" data-tone="info">
+            <header class="kpi-h">
+              <span class="kpi-label">Loại hình</span>
+              <span class="kpi-tag">▣ Types</span>
+            </header>
+            <strong class="kpi-value" id="kpiTypes">0</strong>
+            <p class="kpi-sub">Loại sàn TMĐT phân loại</p>
+            <div class="kpi-spark" data-spark="2,4,5,5,6,7,8,8,9,10,11"></div>
+          </article>
+        </div>
+
+        <!-- Two columns layout: chart + insights -->
+        <div class="grid-2">
+          <article class="panel">
+            <header class="panel-h">
+              <div>
+                <h2>Phân bố traffic theo châu lục</h2>
+                <p class="muted">Tổng lượt truy cập ước tính hàng tháng</p>
+              </div>
+              <div class="seg-control" role="tablist">
+                <button class="seg active" data-chart-mode="traffic">Traffic</button>
+                <button class="seg" data-chart-mode="count">Số sàn</button>
+              </div>
+            </header>
+            <div class="panel-b">
+              <div class="chart-host"><canvas id="continentChart"></canvas></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <header class="panel-h">
+              <div>
+                <h2>Phân loại sàn TMĐT</h2>
+                <p class="muted">Theo type · phân phối toàn cầu</p>
+              </div>
+            </header>
+            <div class="panel-b">
+              <div class="bars" id="typeBars"></div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Top 20 platforms -->
+        <article class="panel">
+          <header class="panel-h">
+            <div>
+              <h2>🏆 Top 20 sàn TMĐT theo lượng truy cập</h2>
+              <p class="muted">Ranked by estimated monthly traffic</p>
+            </div>
+            <button class="btn btn-ghost btn-sm" data-route="directory">Xem tất cả →</button>
+          </header>
+          <div class="panel-b p0">
+            <div class="table-wrap">
+              <table class="data-table" id="topTable">
+                <thead>
+                  <tr>
+                    <th class="w-rank">#</th>
+                    <th>Sàn TMĐT</th>
+                    <th class="hide-sm">Quốc gia</th>
+                    <th>Traffic / tháng</th>
+                    <th class="hide-sm">Loại</th>
+                    <th class="hide-md">Phí seller</th>
+                  </tr>
+                </thead>
+                <tbody id="topBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+        <!-- 3-up insight cards -->
+        <div class="grid-3">
+          <article class="panel">
+            <header class="panel-h"><h2>🚀 Xu hướng tăng</h2></header>
+            <div class="panel-b">
+              <ul class="trend-list">
+                <li><span>Livestream Commerce</span><strong class="t-up">+45%</strong></li>
+                <li><span>AI Personalization</span><strong class="t-up">+40%</strong></li>
+                <li><span>Social Commerce</span><strong class="t-up">+35%</strong></li>
+                <li><span>Cross-border TMĐT</span><strong class="t-up">+28%</strong></li>
+                <li><span>Voice Commerce</span><strong class="t-up">+25%</strong></li>
+                <li><span>Mobile Commerce</span><strong class="t-up">+22%</strong></li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="panel">
+            <header class="panel-h"><h2>⚠️ Thách thức 2026</h2></header>
+            <div class="panel-b">
+              <ul class="trend-list">
+                <li><span>Cookie deprecation & privacy</span><strong class="t-warn">High</strong></li>
+                <li><span>Rising CAC</span><strong class="t-warn">↑</strong></li>
+                <li><span>Supply chain complexity</span><strong class="t-warn">Mid</strong></li>
+                <li><span>DSA / DMA compliance</span><strong class="t-warn">EU</strong></li>
+                <li><span>Sustainability mandates</span><strong class="t-warn">↑</strong></li>
+                <li><span>Marketplace consolidation</span><strong class="t-warn">↔</strong></li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="panel">
+            <header class="panel-h"><h2>🔮 Dự báo 2026</h2></header>
+            <div class="panel-b">
+              <ul class="trend-list">
+                <li><span>Global e-commerce</span><strong>$7.4T</strong></li>
+                <li><span>Mobile share</span><strong>73%</strong></li>
+                <li><span>AI adoption</span><strong>65%+</strong></li>
+                <li><span>Cross-border</span><strong>22%</strong></li>
+                <li><span>Social commerce</span><strong>$1.2T</strong></li>
+                <li><span>B2B e-commerce</span><strong>$23T</strong></li>
+              </ul>
+            </div>
+          </article>
+        </div>
+
+        <!-- Continent cards mini -->
+        <article class="panel">
+          <header class="panel-h">
+            <div>
+              <h2>🌍 Khám phá theo châu lục</h2>
+              <p class="muted">Click vào một châu lục để xem chi tiết</p>
+            </div>
+            <button class="btn btn-ghost btn-sm" data-route="continents">Xem tất cả →</button>
+          </header>
+          <div class="panel-b">
+            <div class="continent-grid" id="overviewContinents"></div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- VIEW: DIRECTORY  (Semrush-style search)     -->
+      <!-- ════════════════════════════════════════════ -->
+      <section class="view" id="view-directory" data-view="directory">
+
+        <div class="page-head">
+          <nav class="crumbs"><a href="#">Home</a><span>›</span><strong>Danh mục</strong></nav>
+          <div class="ph-row">
+            <div>
+              <h1 class="ph-title">Danh mục sàn TMĐT</h1>
+              <p class="ph-sub">Tìm kiếm, lọc và so sánh <strong id="phDirCount">1,060+</strong> sàn thương mại điện tử toàn cầu.</p>
+            </div>
+            <div class="ph-actions">
+              <button class="btn btn-ghost" data-action="export-csv"><span class="bi">↓</span> Xuất CSV</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pro search panel -->
+        <article class="search-panel">
+          <div class="sp-search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="text" id="dirSearch" placeholder="Tìm theo tên, URL, quốc gia, loại hình, đặc điểm..." autocomplete="off">
+            <button class="btn btn-primary" data-action="apply">Tìm kiếm</button>
+          </div>
+
+          <div class="sp-filters">
+            <div class="flt">
+              <label>Châu lục</label>
+              <select id="fltContinent"><option value="">Tất cả</option></select>
+            </div>
+            <div class="flt">
+              <label>Quốc gia</label>
+              <select id="fltCountry"><option value="">Tất cả</option></select>
+            </div>
+            <div class="flt">
+              <label>Loại hình</label>
+              <select id="fltType"><option value="">Tất cả</option></select>
+            </div>
+            <div class="flt">
+              <label>Khu vực</label>
+              <select id="fltRegion"><option value="">Tất cả</option></select>
+            </div>
+            <div class="flt">
+              <label>Liên minh EU</label>
+              <select id="fltEU">
+                <option value="">Tất cả</option>
+                <option value="eu">🇪🇺 Chỉ thành viên EU (27)</option>
+                <option value="non-eu">🌍 Ngoài EU (Châu Âu khác)</option>
+              </select>
+            </div>
+            <div class="flt">
+              <label>Traffic tối thiểu</label>
+              <select id="fltTraffic">
+                <option value="">Không giới hạn</option>
+                <option value="100000">≥ 100.000 / tháng</option>
+                <option value="1000000">≥ 1.000.000 / tháng</option>
+                <option value="10000000">≥ 10.000.000 / tháng</option>
+                <option value="50000000">≥ 50.000.000 / tháng</option>
+                <option value="100000000">≥ 100.000.000 / tháng</option>
+                <option value="500000000">≥ 500.000.000 / tháng</option>
+                <option value="custom">⚙ Nhập số tuỳ ý…</option>
+              </select>
+              <div class="flt-custom-wrap" id="fltTrafficCustomWrap" hidden>
+                <div class="num-input">
+                  <input type="text" inputmode="numeric" id="fltTrafficCustom" class="flt-custom-num" placeholder="0" autocomplete="off" spellcheck="false">
+                  <span class="num-suffix">/ tháng</span>
+                </div>
+                <div class="num-hint" id="fltTrafficHint">Nhập số lượt truy cập tối thiểu</div>
+                <div class="num-quick">
+                  <button type="button" class="num-chip" data-traffic-quick="500000">500K</button>
+                  <button type="button" class="num-chip" data-traffic-quick="5000000">5M</button>
+                  <button type="button" class="num-chip" data-traffic-quick="25000000">25M</button>
+                  <button type="button" class="num-chip" data-traffic-quick="250000000">250M</button>
+                  <button type="button" class="num-chip" data-traffic-quick="1000000000">1B</button>
+                </div>
+              </div>
+            </div>
+            <div class="flt">
+              <label>Phí seller (tối đa)</label>
+              <select id="fltFee">
+                <option value="">Không lọc</option>
+                <option value="0">Miễn phí (0%)</option>
+                <option value="5">≤ 5%</option>
+                <option value="10">≤ 10%</option>
+                <option value="20">≤ 20%</option>
+                <option value="custom">⚙ Nhập % tuỳ ý…</option>
+              </select>
+              <div class="flt-custom-wrap" id="fltFeeCustomWrap" hidden>
+                <div class="num-input">
+                  <input type="text" inputmode="decimal" id="fltFeeCustom" class="flt-custom-num" placeholder="0" autocomplete="off" spellcheck="false">
+                  <span class="num-suffix">% commission</span>
+                </div>
+                <div class="num-hint">Phí seller tối đa chấp nhận được</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sp-chips" id="activeChips"></div>
+        </article>
+
+        <!-- Results header -->
+        <div class="results-bar">
+          <div class="rb-count">
+            Hiển thị <strong id="rbCount">0</strong> / <strong id="rbTotal">0</strong> kết quả
+          </div>
+          <div class="rb-actions">
+            <select id="sortSelect" class="select-sm">
+              <option value="traffic-desc">Traffic ↓ (Cao → Thấp)</option>
+              <option value="traffic-asc">Traffic ↑ (Thấp → Cao)</option>
+              <option value="name-asc">Tên A → Z</option>
+              <option value="name-desc">Tên Z → A</option>
+              <option value="country-asc">Quốc gia A → Z</option>
+            </select>
+            <div class="view-toggle" role="group">
+              <button class="vt-btn active" data-view-mode="table" aria-label="Bảng">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+                Bảng
+              </button>
+              <button class="vt-btn" data-view-mode="cards" aria-label="Thẻ">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Thẻ
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table view -->
+        <article class="panel" id="dirTableWrap">
+          <div class="panel-b p0">
+            <div class="table-wrap">
+              <table class="data-table" id="dirTable">
+                <thead>
+                  <tr>
+                    <th class="w-rank">#</th>
+                    <th data-sort="name">Sàn TMĐT</th>
+                    <th class="hide-sm" data-sort="country">Quốc gia</th>
+                    <th class="hide-sm">Châu lục</th>
+                    <th>Loại</th>
+                    <th data-sort="traffic">Traffic</th>
+                    <th class="hide-md">Phí</th>
+                    <th class="hide-lg">Tính năng</th>
+                  </tr>
+                </thead>
+                <tbody id="dirBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <footer class="panel-f" id="pagerWrap">
+            <div class="pager" id="pager"></div>
+          </footer>
+        </article>
+
+        <!-- Cards view -->
+        <div id="dirCardsWrap" hidden>
+          <div class="cards-grid" id="dirCards"></div>
+          <footer class="panel-f" id="pagerWrap2">
+            <div class="pager" id="pager2"></div>
+          </footer>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty" id="emptyState" hidden>
+          <div class="empty-ico">🔍</div>
+          <h3>Không tìm thấy kết quả</h3>
+          <p>Thử nới rộng bộ lọc hoặc thay đổi từ khóa tìm kiếm.</p>
+          <button class="btn btn-primary" data-action="clear-all">Xóa tất cả bộ lọc</button>
+        </div>
+
+      </section>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- VIEW: ANALYTICS                             -->
+      <!-- ════════════════════════════════════════════ -->
+      <section class="view" id="view-analytics" data-view="analytics">
+
+        <div class="page-head">
+          <nav class="crumbs"><a href="#">Home</a><span>›</span><strong>Phân tích</strong></nav>
+          <div class="ph-row">
+            <div>
+              <h1 class="ph-title">Market Intelligence</h1>
+              <p class="ph-sub">Phân tích chuyên sâu thị trường thương mại điện tử toàn cầu · benchmark · cơ hội.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stat cards row -->
+        <div class="kpi-grid">
+          <article class="kpi" data-tone="primary">
+            <header class="kpi-h"><span class="kpi-label">Market Size 2026</span><span class="kpi-tag">↗ +9.4%</span></header>
+            <strong class="kpi-value">$7.4T</strong>
+            <p class="kpi-sub">Tổng giá trị e-commerce toàn cầu</p>
+          </article>
+          <article class="kpi" data-tone="success">
+            <header class="kpi-h"><span class="kpi-label">Mobile share</span><span class="kpi-tag">↗ +5pp</span></header>
+            <strong class="kpi-value">73%</strong>
+            <p class="kpi-sub">Tỷ trọng giao dịch trên di động</p>
+          </article>
+          <article class="kpi" data-tone="warning">
+            <header class="kpi-h"><span class="kpi-label">Social Commerce</span><span class="kpi-tag">↗ +35%</span></header>
+            <strong class="kpi-value">$1.2T</strong>
+            <p class="kpi-sub">Doanh thu social commerce 2026</p>
+          </article>
+          <article class="kpi" data-tone="info">
+            <header class="kpi-h"><span class="kpi-label">Cross-border</span><span class="kpi-tag">↗ +28%</span></header>
+            <strong class="kpi-value">22%</strong>
+            <p class="kpi-sub">Tỷ trọng cross-border của TMĐT</p>
+          </article>
+        </div>
+
+        <!-- Traffic Sources + Conversion benchmarks -->
+        <div class="grid-2">
+          <article class="panel">
+            <header class="panel-h">
+              <div>
+                <h2>📡 Traffic Source Benchmark</h2>
+                <p class="muted">Phân bổ traffic trung bình toàn ngành TMĐT</p>
+              </div>
+            </header>
+            <div class="panel-b">
+              <div class="bars">
+                <div class="bar"><div class="bar-row"><span>Direct</span><span>30%</span></div><div class="bar-track"><div class="bar-fill" style="width:30%;background:linear-gradient(90deg,#0B5FFF,#3B82F6)"></div></div></div>
+                <div class="bar"><div class="bar-row"><span>Organic Search</span><span>25%</span></div><div class="bar-track"><div class="bar-fill" style="width:25%;background:linear-gradient(90deg,#10B981,#34D399)"></div></div></div>
+                <div class="bar"><div class="bar-row"><span>Paid Search</span><span>18%</span></div><div class="bar-track"><div class="bar-fill" style="width:18%;background:linear-gradient(90deg,#8B5CF6,#A78BFA)"></div></div></div>
+                <div class="bar"><div class="bar-row"><span>Social Media</span><span>12%</span></div><div class="bar-track"><div class="bar-fill" style="width:12%;background:linear-gradient(90deg,#EC4899,#F472B6)"></div></div></div>
+                <div class="bar"><div class="bar-row"><span>Referral</span><span>8%</span></div><div class="bar-track"><div class="bar-fill" style="width:8%;background:linear-gradient(90deg,#F59E0B,#FBBF24)"></div></div></div>
+                <div class="bar"><div class="bar-row"><span>Email</span><span>5%</span></div><div class="bar-track"><div class="bar-fill" style="width:5%;background:linear-gradient(90deg,#EF4444,#F87171)"></div></div></div>
+                <div class="bar"><div class="bar-row"><span>Display Ads</span><span>2%</span></div><div class="bar-track"><div class="bar-fill" style="width:2%;background:linear-gradient(90deg,#64748B,#94A3B8)"></div></div></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <header class="panel-h">
+              <div>
+                <h2>🎯 Conversion Rate Benchmark</h2>
+                <p class="muted">Tỷ lệ chuyển đổi theo nguồn traffic</p>
+              </div>
+            </header>
+            <div class="panel-b">
+              <ul class="trend-list">
+                <li><span>Email Marketing</span><strong class="t-up">5 – 8%</strong></li>
+                <li><span>Organic Search</span><strong class="t-up">3 – 4.5%</strong></li>
+                <li><span>Direct Traffic</span><strong>2.5 – 3.5%</strong></li>
+                <li><span>Paid Search</span><strong>2 – 3%</strong></li>
+                <li><span>Social (Organic)</span><strong class="t-warn">1 – 2%</strong></li>
+                <li><span>Social (Paid)</span><strong class="t-warn">0.7 – 1.5%</strong></li>
+                <li><span>Display Ads</span><strong class="t-down">0.3 – 0.7%</strong></li>
+              </ul>
+            </div>
+          </article>
+        </div>
+
+        <!-- Top marketplaces -->
+        <article class="panel">
+          <header class="panel-h">
+            <div>
+              <h2>🏅 Top 10 Open Marketplaces toàn cầu</h2>
+              <p class="muted">Ranked theo traffic ước tính / tháng</p>
+            </div>
+          </header>
+          <div class="panel-b p0">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th class="w-rank">#</th><th>Marketplace</th><th>Traffic</th><th class="hide-sm">Khu vực</th><th class="hide-md">Đặc điểm</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="rank rank-1">1</span></td><td><strong>Amazon</strong> · amazon.com</td><td>~5.5B</td><td class="hide-sm">Global</td><td class="hide-md">B2C/B2B · FBA · Prime · 600M+ SKUs</td></tr>
+                  <tr><td><span class="rank rank-2">2</span></td><td><strong>Temu</strong> · temu.com</td><td>~700M</td><td class="hide-sm">Global</td><td class="hide-md">Cross-border · Direct China · Ultra-low prices</td></tr>
+                  <tr><td><span class="rank rank-3">3</span></td><td><strong>eBay</strong> · ebay.com</td><td>~612M</td><td class="hide-sm">Global</td><td class="hide-md">C2C/B2C · Auctions · 1.9B listings</td></tr>
+                  <tr><td><span class="rank">4</span></td><td><strong>AliExpress</strong> · aliexpress.com</td><td>~578M</td><td class="hide-sm">Global</td><td class="hide-md">Cross-border · Direct China · Dropship</td></tr>
+                  <tr><td><span class="rank">5</span></td><td><strong>Walmart</strong> · walmart.com</td><td>~553M</td><td class="hide-sm">USA</td><td class="hide-md">Omnichannel · 200K+ sellers · 3P marketplace</td></tr>
+                  <tr><td><span class="rank">6</span></td><td><strong>Rakuten</strong> · rakuten.co.jp</td><td>~500M</td><td class="hide-sm">Japan</td><td class="hide-md">Points ecosystem · B2C · 56K merchants</td></tr>
+                  <tr><td><span class="rank">7</span></td><td><strong>Mercado Libre</strong> · mercadolibre.com</td><td>~450M</td><td class="hide-sm">LatAm</td><td class="hide-md">18 countries · Fintech · Logistics</td></tr>
+                  <tr><td><span class="rank">8</span></td><td><strong>Etsy</strong> · etsy.com</td><td>~416M</td><td class="hide-sm">Global</td><td class="hide-md">Handmade · Vintage · Crafts · $6B GMV</td></tr>
+                  <tr><td><span class="rank">9</span></td><td><strong>Avito</strong> · avito.ru</td><td>~350M</td><td class="hide-sm">Russia</td><td class="hide-md">Classifieds · C2C/B2C · Multi-category</td></tr>
+                  <tr><td><span class="rank">10</span></td><td><strong>Shopee</strong> · shopee.com</td><td>~230M</td><td class="hide-sm">SE Asia</td><td class="hide-md">Mobile-first · Livestream · Gamification</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+        <!-- 3-up: digital metrics + cross-border + privacy -->
+        <div class="grid-3">
+          <article class="panel">
+            <header class="panel-h"><h2>💡 Digital Product Metrics</h2></header>
+            <div class="panel-b">
+              <ul class="trend-list">
+                <li><span>Avg. CAC (Digital)</span><strong>$15 – 45</strong></li>
+                <li><span>Avg. AOV (Digital)</span><strong>$35 – 120</strong></li>
+                <li><span>Avg. CLV</span><strong>$150 – 500</strong></li>
+                <li><span>Conversion rate</span><strong>2 – 5%</strong></li>
+                <li><span>Refund rate</span><strong>3 – 8%</strong></li>
+                <li><span>Gross margin</span><strong class="t-up">70 – 95%</strong></li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="panel">
+            <header class="panel-h"><h2>🌐 Cross-Border Opportunities</h2></header>
+            <div class="panel-b">
+              <ul class="trend-list">
+                <li><span>EU → US</span><strong class="t-up">High Potential</strong></li>
+                <li><span>China → Global</span><strong class="t-up">Dominant</strong></li>
+                <li><span>SE Asia → Global</span><strong class="t-up">Growing Fast</strong></li>
+                <li><span>LatAm Internal</span><strong>Emerging</strong></li>
+                <li><span>Africa Internal</span><strong class="t-warn">Early Stage</strong></li>
+              </ul>
+              <p class="muted" style="margin-top:12px;font-size:12px">Platform hỗ trợ: AliExpress · Amazon GS · Shopee · eBay GSP · Mercado Libre</p>
+            </div>
+          </article>
+
+          <article class="panel">
+            <header class="panel-h"><h2>🔒 Privacy-Friendly Platforms</h2></header>
+            <div class="panel-b">
+              <ul class="trend-list">
+                <li><span>Kleinanzeigen.de</span><strong class="t-up">Miễn phí · ẩn danh</strong></li>
+                <li><span>eBay C2C (EEA)</span><strong class="t-up">0% phí</strong></li>
+                <li><span>Vinted</span><strong class="t-up">0% seller</strong></li>
+                <li><span>Craigslist</span><strong class="t-up">Anonymous</strong></li>
+                <li><span>Marktplaats</span><strong>Pseudonymous</strong></li>
+                <li><span>Wallapop</span><strong>Free C2C</strong></li>
+              </ul>
+            </div>
+          </article>
+        </div>
+
+        <!-- Seller strategy -->
+        <article class="panel">
+          <header class="panel-h"><h2>🎯 Chiến lược seller theo loại hình</h2></header>
+          <div class="panel-b">
+            <div class="seller-grid">
+              <div class="seller-card">
+                <h3>📦 Hàng vật lý</h3>
+                <div class="sg-row"><span>Nền tảng</span><strong>Amazon · eBay · Shopee</strong></div>
+                <div class="sg-row"><span>Biên LN</span><strong>15 – 40%</strong></div>
+                <div class="sg-row"><span>Thách thức</span><strong>Logistics · Inventory</strong></div>
+                <div class="sg-row"><span>Chiến lược</span><strong>FBA / 3PL · Multi-channel</strong></div>
+              </div>
+              <div class="seller-card">
+                <h3>💻 Sản phẩm số</h3>
+                <div class="sg-row"><span>Nền tảng</span><strong>Gumroad · LemonSqueezy</strong></div>
+                <div class="sg-row"><span>Biên LN</span><strong class="t-up">70 – 95%</strong></div>
+                <div class="sg-row"><span>Thách thức</span><strong>Marketing · Trust</strong></div>
+                <div class="sg-row"><span>Chiến lược</span><strong>MoR · Content marketing</strong></div>
+              </div>
+              <div class="seller-card">
+                <h3>🎨 Creative Assets</h3>
+                <div class="sg-row"><span>Nền tảng</span><strong>Envato · Creative Market</strong></div>
+                <div class="sg-row"><span>Biên LN</span><strong>50 – 70%</strong></div>
+                <div class="sg-row"><span>Thách thức</span><strong>Competition · Discovery</strong></div>
+                <div class="sg-row"><span>Chiến lược</span><strong>Bundle · Niche</strong></div>
+              </div>
+              <div class="seller-card">
+                <h3>📖 Khóa học / Ebook</h3>
+                <div class="sg-row"><span>Nền tảng</span><strong>Udemy · Teachable · KDP</strong></div>
+                <div class="sg-row"><span>Biên LN</span><strong class="t-up">70 – 90%</strong></div>
+                <div class="sg-row"><span>Thách thức</span><strong>Audience · Production</strong></div>
+                <div class="sg-row"><span>Chiến lược</span><strong>Email list · Affiliate</strong></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- VIEW: DIGITAL                               -->
+      <!-- ════════════════════════════════════════════ -->
+      <section class="view" id="view-digital" data-view="digital">
+
+        <div class="page-head">
+          <nav class="crumbs"><a href="#">Home</a><span>›</span><strong>Sản phẩm số</strong></nav>
+          <div class="ph-row">
+            <div>
+              <h1 class="ph-title">Digital Product Platforms</h1>
+              <p class="ph-sub">Nền tảng bán sản phẩm số: ebook, khóa học, software, key, design assets, freelance.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <article class="kpi" data-tone="primary">
+            <header class="kpi-h"><span class="kpi-label">Marketplace</span></header>
+            <strong class="kpi-value" id="dpMarketplace">0</strong>
+            <p class="kpi-sub">Digital product marketplaces</p>
+          </article>
+          <article class="kpi" data-tone="warning">
+            <header class="kpi-h"><span class="kpi-label">Key / Game</span></header>
+            <strong class="kpi-value" id="dpKeys">0</strong>
+            <p class="kpi-sub">Software/game key marketplaces</p>
+          </article>
+          <article class="kpi" data-tone="success">
+            <header class="kpi-h"><span class="kpi-label">Creative</span></header>
+            <strong class="kpi-value" id="dpCreative">0</strong>
+            <p class="kpi-sub">Thiết kế & creative marketplaces</p>
+          </article>
+          <article class="kpi" data-tone="info">
+            <header class="kpi-h"><span class="kpi-label">Publishing</span></header>
+            <strong class="kpi-value" id="dpPublish">0</strong>
+            <p class="kpi-sub">Nền tảng xuất bản & in ấn</p>
+          </article>
+        </div>
+
+        <article class="panel">
+          <header class="panel-h">
+            <div>
+              <h2>📊 So sánh nền tảng bán sản phẩm số</h2>
+              <p class="muted">Phí, traffic, tính năng nổi bật</p>
+            </div>
+          </header>
+          <div class="panel-b p0">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Nền tảng</th><th>Loại</th><th>Traffic</th><th class="hide-sm">Phí</th><th class="hide-md">Tính năng</th></tr></thead>
+                <tbody id="dpCompareBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-h"><h2>🔐 Chính sách bán hàng — Các sàn chính</h2></header>
+          <div class="panel-b">
+            <div class="policy-grid">
+              <div class="policy-card">
+                <h3>🏷️ eBay</h3>
+                <ul><li class="ok">Sản phẩm vật lý, C2C, B2C</li><li class="ok">Bán danh (pseudonymous)</li><li class="ok">0% C2C fee trong EEA</li><li class="warn">B2C: 3 – 15% phí cuối cùng</li><li class="no">Hạn chế key/license resale</li></ul>
+              </div>
+              <div class="policy-card">
+                <h3>🇩🇪 Kleinanzeigen.de</h3>
+                <ul><li class="ok">Hoàn toàn miễn phí</li><li class="ok">Bán ẩn danh, không cần ID</li><li class="ok">Giao dịch trực tiếp / ship</li><li class="warn">Chủ yếu thị trường Đức</li><li class="ok">Tốt nhất cho privacy</li></ul>
+              </div>
+              <div class="policy-card">
+                <h3>📦 Amazon</h3>
+                <ul><li class="ok">FBA, Prime, global reach</li><li class="warn">Phí cao: referral 8 – 45%</li><li class="warn">Yêu cầu xác minh danh tính</li><li class="no">Không ẩn danh</li><li class="ok">KDP, AWS Marketplace</li></ul>
+              </div>
+              <div class="policy-card">
+                <h3>👗 Vinted</h3>
+                <ul><li class="ok">0% phí seller</li><li class="ok">Chuyên thời trang secondhand</li><li class="ok">EU-wide, buyer protection</li><li class="warn">Chỉ quần áo / phụ kiện</li><li class="no">Không bán digital</li></ul>
+              </div>
+              <div class="policy-card">
+                <h3>🛒 Shopee</h3>
+                <ul><li class="ok">Phổ biến SE Asia</li><li class="ok">Livestream commerce</li><li class="warn">Phí commission 1 – 6%</li><li class="warn">Cạnh tranh giá khốc liệt</li><li class="ok">Mobile-first, gamification</li></ul>
+              </div>
+              <div class="policy-card">
+                <h3>🍋 Lemon Squeezy</h3>
+                <ul><li class="ok">Merchant of Record</li><li class="ok">Xử lý thuế tự động</li><li class="ok">License keys, subscriptions</li><li class="ok">5% + 50¢ per transaction</li><li class="ok">Tốt nhất cho SaaS</li></ul>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel alert-panel alert-warn">
+          <h3>⚠️ Cảnh báo: Bán lại subscription keys</h3>
+          <ul>
+            <li>Bán lại license keys / subscription (Windows, Office, Netflix...) vi phạm ToS đa số sàn.</li>
+            <li>Rủi ro cao: account ban, key revoke, tranh chấp pháp lý.</li>
+            <li>G2A, Kinguin cho phép nhưng có rủi ro fraud / chargebacks.</li>
+            <li>Khuyến nghị: chỉ bán keys sở hữu hợp pháp, từ nguồn authorized.</li>
+          </ul>
+        </article>
+
+      </section>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- VIEW: CONTINENTS                            -->
+      <!-- ════════════════════════════════════════════ -->
+      <section class="view" id="view-continents" data-view="continents">
+
+        <div class="page-head">
+          <nav class="crumbs"><a href="#">Home</a><span>›</span><strong>Châu lục</strong></nav>
+          <div class="ph-row">
+            <div>
+              <h1 class="ph-title">Khám phá theo châu lục</h1>
+              <p class="ph-sub">Nhấp vào châu lục để filter sàn TMĐT tương ứng trong tab Danh mục.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="continent-grid" id="continentGrid"></div>
+      </section>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- VIEW: FAVORITES                             -->
+      <!-- ════════════════════════════════════════════ -->
+      <section class="view" id="view-favorites" data-view="favorites">
+
+        <div class="page-head">
+          <nav class="crumbs"><a href="#">Home</a><span>›</span><strong>Yêu thích</strong></nav>
+          <div class="ph-row">
+            <div>
+              <h1 class="ph-title">★ Danh sách yêu thích</h1>
+              <p class="ph-sub" id="favSubtitle">Không gian nghiên cứu cá nhân — lưu, ghi chú chiến lược và theo dõi tiến độ từng sàn TMĐT.</p>
+            </div>
+            <div class="ph-actions" id="favActions">
+              <button class="btn btn-ghost" id="favExportBtn">
+                <span class="bi">↓</span> Xuất JSON
+              </button>
+              <label class="btn btn-ghost" style="cursor:pointer;">
+                <span class="bi">↑</span> Nhập JSON
+                <input type="file" id="favImportInput" accept=".json" style="display:none">
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Not logged in state -->
+        <div class="fav-guest" id="favGuestState">
+          <span class="empty-ico">🔐</span>
+          <h3>Đăng nhập để lưu yêu thích</h3>
+          <p>Tạo tài khoản miễn phí để lưu danh sách yêu thích, ghi chú chiến lược và phân tích sàn TMĐT.</p>
+          <div class="fav-guest-features">
+            <div class="fav-guest-feature">⭐ Lưu không giới hạn</div>
+            <div class="fav-guest-feature">📝 Ghi chú có cấu trúc</div>
+            <div class="fav-guest-feature">🏷️ Tags & phân loại</div>
+            <div class="fav-guest-feature">🔒 Dữ liệu riêng tư</div>
+          </div>
+          <button class="btn btn-primary" id="favLoginPromptBtn" style="padding:12px 32px;font-size:15px;">
+            🚀 Đăng nhập / Đăng ký miễn phí
+          </button>
+        </div>
+
+        <!-- Logged in + empty -->
+        <div class="empty" id="favEmptyState" hidden>
+          <div class="empty-ico">☆</div>
+          <h3>Chưa có trang yêu thích</h3>
+          <p>Nhấn biểu tượng ★ trên mỗi sàn TMĐT để thêm vào danh sách yêu thích của bạn.</p>
+          <button class="btn btn-primary" data-route="directory">Khám phá danh mục →</button>
+        </div>
+
+        <!-- Favorites search/filter bar -->
+        <div class="fav-toolbar" id="favToolbar" hidden>
+          <div class="fav-tb-top">
+            <div class="fav-search-wrap fav-search-wide">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input type="text" id="favSearch" placeholder="Tìm theo tên, URL, ghi chú, chiến lược..." autocomplete="off">
+            </div>
+            <select id="favSortSelect" class="select-sm">
+              <option value="newest">⏱ Mới nhất</option>
+              <option value="oldest">⏱ Cũ nhất</option>
+              <option value="name">🔤 Tên A→Z</option>
+              <option value="priority">📌 Ưu tiên ↓</option>
+              <option value="traffic">📊 Traffic ↓</option>
+            </select>
+          </div>
+          <div class="fav-tb-filters">
+            <select id="favPriorityFilter" class="select-sm">
+              <option value="">📌 Ưu tiên: Tất cả</option>
+              <option value="high">🔴 Cao</option>
+              <option value="medium">🟡 Trung bình</option>
+              <option value="low">🟢 Thấp</option>
+            </select>
+            <select id="favStatusFilter" class="select-sm">
+              <option value="">📋 Trạng thái: Tất cả</option>
+              <option value="researching">🔍 Đang nghiên cứu</option>
+              <option value="active">✅ Đang triển khai</option>
+              <option value="pending">⏳ Chờ triển khai</option>
+              <option value="paused">⏸ Tạm dừng</option>
+              <option value="completed">🏆 Hoàn thành</option>
+            </select>
+            <div class="fav-search-wrap fav-country-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <input type="text" id="favCountryFilter" placeholder="Quốc gia..." autocomplete="off">
+            </div>
+            <span class="fav-filter-count" id="favFilterCount"></span>
+          </div>
+        </div>
+
+        <!-- Favorites list -->
+        <div class="fav-list" id="favList" hidden></div>
+
+      </section>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- FOOTER                                      -->
+      <!-- ════════════════════════════════════════════ -->
+      <footer class="footer">
+        <div class="ft-l">
+          <p><strong>GlobalCommerce Intelligence</strong> · Database 1,060+ sàn TMĐT · 6 châu lục · 90+ quốc gia</p>
+          <p class="muted">© 2025 – 2026 · Built with ❤️ for global e-commerce community</p>
+        </div>
+        <div class="ft-r">
+          <a href="#" data-route="overview">Tổng quan</a>
+          <a href="#" data-route="directory">Danh mục</a>
+          <a href="#" data-route="analytics">Phân tích</a>
+          <a href="#" data-route="continents">Châu lục</a>
+        </div>
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- AUTH MODAL                                                       -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" id="authModalBackdrop" aria-hidden="true">
+  <div class="modal auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <button class="modal-close" id="authModalClose" aria-label="Đóng">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <!-- Auth modal gradient header -->
+    <div class="auth-modal-header">
+      <div class="auth-modal-brand">
+        <svg viewBox="0 0 32 32" width="28" height="28"><defs><linearGradient id="lg-auth" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity=".5"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#lg-auth)"/><path d="M9 11h14M9 16h14M9 21h10" stroke="#0B5FFF" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span>GlobalCommerce</span>
+      </div>
+      <p>Đăng nhập để lưu & quản lý yêu thích của bạn</p>
+    </div>
+
+    <!-- Tab switcher -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-auth-tab="login" id="tabLogin">Đăng nhập</button>
+      <button class="auth-tab" data-auth-tab="register" id="tabRegister">Đăng ký</button>
+    </div>
+
+    <!-- Login form -->
+    <div class="auth-panel active" id="panelLogin">
+      <h2 class="auth-panel-title" id="authModalTitle">Chào mừng trở lại 👋</h2>
+      <form class="auth-form" id="loginForm" autocomplete="on" novalidate>
+        <div class="form-group">
+          <label for="loginEmail">Địa chỉ Email</label>
+          <div class="input-wrap">
+            <svg class="input-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <input type="email" id="loginEmail" name="email" placeholder="email@example.com" autocomplete="email" spellcheck="false" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Mật khẩu</label>
+          <div class="input-wrap">
+            <svg class="input-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="loginPassword" name="password" placeholder="••••••••" autocomplete="current-password" required>
+            <button type="button" class="pwd-toggle" data-target="loginPassword" aria-label="Hiện/ẩn mật khẩu">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="form-error" id="loginError" hidden></div>
+        <div class="auth-forgot-wrap">
+          <button type="button" class="link-btn" id="forgotPasswordBtn">Quên mật khẩu?</button>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="loginSubmitBtn">
+          <span class="btn-text">🔑 Đăng nhập</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+      </form>
+      <p class="auth-switch">Chưa có tài khoản? <button class="link-btn" data-auth-tab="register">Tạo tài khoản ngay →</button></p>
+    </div>
+
+    <!-- Register form -->
+    <div class="auth-panel" id="panelRegister">
+      <h2 class="auth-panel-title">Tạo tài khoản miễn phí ✨</h2>
+      <form class="auth-form" id="registerForm" autocomplete="on" novalidate>
+        <div class="form-group">
+          <label for="regEmail">Địa chỉ Email</label>
+          <div class="input-wrap">
+            <svg class="input-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <input type="email" id="regEmail" name="email" placeholder="email@example.com" autocomplete="email" spellcheck="false" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="regDisplayName">Tên hiển thị <span class="hint-txt">(tuỳ chọn)</span></label>
+          <div class="input-wrap">
+            <svg class="input-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <input type="text" id="regDisplayName" name="displayName" placeholder="Tên của bạn" autocomplete="name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="regPassword">Mật khẩu <span class="hint-txt">(ít nhất 6 ký tự)</span></label>
+          <div class="input-wrap">
+            <svg class="input-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="regPassword" name="password" placeholder="••••••••" autocomplete="new-password" required>
+            <button type="button" class="pwd-toggle" data-target="regPassword" aria-label="Hiện/ẩn mật khẩu">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="pwd-strength" id="pwdStrength"><div class="pwd-bar"></div></div>
+          <div class="pwd-strength-label" id="pwdStrengthLabel"></div>
+        </div>
+        <div class="form-error" id="registerError" hidden></div>
+        <button type="submit" class="btn btn-primary btn-full" id="registerSubmitBtn">
+          <span class="btn-text">✨ Tạo tài khoản</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+      </form>
+      <p class="auth-switch">Đã có tài khoản? <button class="link-btn" data-auth-tab="login">← Đăng nhập</button></p>
+    </div>
+
+    <!-- Benefits list -->
+    <div class="auth-benefits">
+      <div class="auth-benefit-item">⭐ Lưu sàn yêu thích với ghi chú cá nhân</div>
+      <div class="auth-benefit-item">📝 Phân tích chiến lược & gắn tags</div>
+      <div class="auth-benefit-item">🔒 Dữ liệu riêng tư, đồng bộ đa thiết bị</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PLATFORM DETAIL MODAL                                            -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" id="platformModalBackdrop" aria-hidden="true">
+  <div class="modal platform-modal" id="platformModal" role="dialog" aria-modal="true" aria-labelledby="pmName">
+    <button class="modal-close" id="platformModalClose" aria-label="Đóng">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <!-- Header: flag + name + star -->
+    <div class="pm-header">
+      <div class="pm-flag-wrap">
+        <span class="pm-flag" id="pmFlag">🏳️</span>
+      </div>
+      <div class="pm-info">
+        <h2 class="pm-name" id="pmName">Platform Name</h2>
+        <a class="pm-url" id="pmUrl" href="#" target="_blank" rel="noopener">url.com</a>
+      </div>
+      <button class="star-btn pm-star-btn" id="pmStarBtn" aria-label="Lưu yêu thích">☆</button>
+    </div>
+
+    <!-- Type / country / traffic pills -->
+    <div class="pm-pills" id="pmPills"></div>
+
+    <!-- Body -->
+    <div class="pm-body">
+      <!-- Feature description -->
+      <div class="pm-feat" id="pmFeat"></div>
+
+      <!-- Key stats grid -->
+      <div class="pm-stats" id="pmStats">
+        <div class="pm-stat-item">
+          <span class="pm-stat-label">📊 Traffic hàng tháng</span>
+          <strong id="pmTraffic">—</strong>
+        </div>
+        <div class="pm-stat-item">
+          <span class="pm-stat-label">💰 Phí seller</span>
+          <strong id="pmFee">—</strong>
+        </div>
+        <div class="pm-stat-item">
+          <span class="pm-stat-label">🌍 Châu lục</span>
+          <strong id="pmContinent">—</strong>
+        </div>
+        <div class="pm-stat-item">
+          <span class="pm-stat-label">📍 Khu vực</span>
+          <strong id="pmRegion">—</strong>
+        </div>
+      </div>
+
+      <!-- Already in favorites indicator -->
+      <div class="pm-fav-status" id="pmFavStatus" hidden>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Đã lưu trong Yêu thích
+        <button class="pm-fav-edit-btn" id="pmFavEditBtn">✏️ Xem ghi chú</button>
+      </div>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="pm-footer">
+      <a class="btn btn-ghost" id="pmVisitBtn" href="#" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Mở website
+      </a>
+      <div class="pm-footer-r">
+        <button class="btn btn-ghost btn-sm" id="platformModalClose2">Đóng</button>
+        <button class="btn btn-primary" id="pmSaveFavBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 0 0 .95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 0 0-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 0 0-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 0 0-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 0 0 .951-.69l1.519-4.674z"/></svg>
+          Lưu &amp; Ghi chú
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- FAVORITES NOTE MODAL                                            -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" id="noteModalBackdrop" aria-hidden="true">
+  <div class="modal note-modal" id="noteModal" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+    <button class="modal-close" id="noteModalClose" aria-label="Đóng">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <!-- Site header -->
+    <div class="note-modal-header">
+      <div class="note-site-info">
+        <div class="note-flag-wrap">
+          <span class="note-flag" id="noteFlag"></span>
+        </div>
+        <div class="note-site-details">
+          <h2 class="note-site-name" id="noteModalTitle">Site Name</h2>
+          <a class="note-site-url" id="noteSiteUrl" href="#" target="_blank" rel="noopener">url</a>
+        </div>
+      </div>
+      <div class="note-meta-pills" id="noteMetaPills"></div>
+      <div class="note-saved-badge">✅ Đã lưu vào yêu thích — ghi chú bên dưới là tuỳ chọn</div>
+    </div>
+
+    <!-- Structured note body -->
+    <div class="note-body">
+
+      <!-- Section 1: Main note -->
+      <div class="note-section">
+        <label for="noteTextarea" class="note-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Ghi chú tổng quan
+        </label>
+        <textarea id="noteTextarea" class="note-textarea" placeholder="Nhận xét, đánh giá tổng quan về sàn TMĐT này..." rows="4"></textarea>
+        <div class="note-char-count"><span id="noteCharCount">0</span>/2000 ký tự</div>
+      </div>
+
+      <!-- Section 2: Structured fields -->
+      <div class="note-structured">
+        <div class="note-field-group">
+          <div class="note-field">
+            <label class="note-field-label" for="noteStrategy">
+              <span class="note-field-icon nf-strategy">🎯</span> Chiến lược
+            </label>
+            <textarea id="noteStrategy" class="note-field-textarea" placeholder="Chiến lược kinh doanh, cách tiếp cận thị trường này..." rows="2"></textarea>
+          </div>
+          <div class="note-field">
+            <label class="note-field-label" for="noteOpportunity">
+              <span class="note-field-icon nf-opportunity">💡</span> Cơ hội
+            </label>
+            <textarea id="noteOpportunity" class="note-field-textarea" placeholder="Cơ hội kinh doanh, sản phẩm tiềm năng..." rows="2"></textarea>
+          </div>
+          <div class="note-field">
+            <label class="note-field-label" for="noteRisk">
+              <span class="note-field-icon nf-risk">⚠️</span> Rủi ro
+            </label>
+            <textarea id="noteRisk" class="note-field-textarea" placeholder="Rủi ro cần chú ý, điểm cần cân nhắc..." rows="2"></textarea>
+          </div>
+          <div class="note-field">
+            <label class="note-field-label" for="noteTarget">
+              <span class="note-field-icon nf-target">📊</span> Mục tiêu
+            </label>
+            <textarea id="noteTarget" class="note-field-textarea" placeholder="Mục tiêu doanh số, timeline dự kiến..." rows="2"></textarea>
+          </div>
+          <div class="note-field">
+            <label class="note-field-label" for="noteContact">
+              <span class="note-field-icon nf-contact">📞</span> Liên hệ / Seller Account
+            </label>
+            <textarea id="noteContact" class="note-field-textarea" placeholder="Thông tin liên hệ, account seller, email..." rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Priority & Status -->
+      <div class="note-section note-section-inline">
+        <div class="note-field-sm">
+          <label class="note-field-label">📌 Mức độ ưu tiên</label>
+          <div class="note-priority-group" id="notePriorityGroup">
+            <button type="button" class="note-priority-btn" data-priority="low">🟢 Thấp</button>
+            <button type="button" class="note-priority-btn" data-priority="medium">🟡 Trung bình</button>
+            <button type="button" class="note-priority-btn active" data-priority="high">🔴 Cao</button>
+          </div>
+        </div>
+        <div class="note-field-sm">
+          <label class="note-field-label">📋 Trạng thái</label>
+          <select id="noteStatus" class="note-status-select">
+            <option value="researching">🔍 Đang nghiên cứu</option>
+            <option value="active">✅ Đang triển khai</option>
+            <option value="pending">⏳ Chờ triển khai</option>
+            <option value="paused">⏸ Tạm dừng</option>
+            <option value="completed">🏆 Hoàn thành</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Section 4: Tags -->
+      <div class="note-section">
+        <label class="note-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Tags phân loại
+        </label>
+        <div class="tags-input-wrap">
+          <div class="tags-list" id="tagsList"></div>
+          <input type="text" id="tagInput" class="tag-input" placeholder="Nhập tag, Enter để thêm..." autocomplete="off">
+        </div>
+        <div class="tag-suggestions">
+          <span class="tag-sug" data-tag="Tiềm năng">⭐ Tiềm năng</span>
+          <span class="tag-sug" data-tag="Đang nghiên cứu">🔍 Đang nghiên cứu</span>
+          <span class="tag-sug" data-tag="Đã bán hàng">✅ Đã bán hàng</span>
+          <span class="tag-sug" data-tag="Dropship">📦 Dropship</span>
+          <span class="tag-sug" data-tag="B2B">🏢 B2B</span>
+          <span class="tag-sug" data-tag="High traffic">🚀 High traffic</span>
+          <span class="tag-sug" data-tag="Low fee">💰 Low fee</span>
+          <span class="tag-sug" data-tag="EU market">🇪🇺 EU market</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note-footer">
+      <button class="btn btn-ghost btn-sm note-delete-btn" id="noteDeleteBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        Xóa yêu thích
+      </button>
+      <div class="note-footer-right">
+        <button class="btn btn-ghost btn-sm" id="noteModalClose2">Bỏ qua</button>
+        <button class="btn btn-primary" id="noteSaveBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Lưu ghi chú
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- DATA + APP SCRIPTS                                              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- Data files -->
+<script src="europe.js"></script>
+<script src="asia.js"></script>
+<script src="americas.js"></script>
+<script src="africa_me.js"></script>
+<script src="oceania.js"></script>
+<script src="digital.js"></script>
+
+<!-- Core modules -->
+<!-- Firebase SDKs (v9 compat mode) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<script src="auth.js"></script>
+<script src="favorites.js"></script>
+<script src="theme.js"></script>
+
+<!-- Main app (must come last) -->
+<script src="app.js"></script>
+
+</body>
+</html>
